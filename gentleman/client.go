@@ -20,8 +20,7 @@ var NewHandler = context.NewHandler
 // NewMiddleware is a convenient alias to middleware.New factory.
 var NewMiddleware = middleware.New
 
-// Client represents a high-level HTTP client entity capable
-// with a built-in middleware and context.
+// Client 代表一个高水平的HTTP client能够具有内置的middleware和context
 type Client struct {
 	// Client entity can inherit behavior from a parent Client.
 	Parent *Client
