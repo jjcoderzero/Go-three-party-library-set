@@ -1,19 +1,3 @@
-/*
-Copyright 2015 The Kubernetes Authors.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package workqueue
 
 import (
@@ -22,14 +6,14 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/clock"
 )
-
+// 通用队列接口定义
 type Interface interface {
-	Add(item interface{})
-	Len() int
-	Get() (item interface{}, shutdown bool)
-	Done(item interface{})
-	ShutDown()
-	ShuttingDown() bool
+	Add(item interface{}) // 向队列中添加一个元素
+	Len() int // 获取队列长度
+	Get() (item interface{}, shutdown bool) // 获取队列头部的元素，第二个返回值表示队列是否已经关闭
+	Done(item interface{}) // 标记队列中元素已经处理完
+	ShutDown() // 关闭队列
+	ShuttingDown() bool // 查询队列是否正在关闭
 }
 
 // New constructs a new work queue (see the package comment).

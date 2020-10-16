@@ -1,19 +1,3 @@
-/*
-Copyright 2016 The Kubernetes Authors.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package workqueue
 
 import (
@@ -25,11 +9,11 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )
 
-// DelayingInterface is an Interface that can Add an item at a later time. This makes it easier to
-// requeue items after failures without ending up in a hot-loop.
+//DelayingInterface 是一个延时队列，可以在以后的时间来添加元素的接口,这使得它更容易在处理失败后重新入队列，而不至于陷入 hot-loop
 type DelayingInterface interface {
+	// 扩展通用队列
 	Interface
-	// AddAfter adds an item to the workqueue after the indicated duration has passed
+	// 在指定的时间后将元素添加到工作队列中
 	AddAfter(item interface{}, duration time.Duration)
 }
 
@@ -69,44 +53,39 @@ func newDelayingQueue(clock clock.Clock, q Interface, name string) *delayingType
 	return ret
 }
 
-// delayingType wraps an Interface and provides delayed re-enquing
+// delayingType 包装了 Interface 通用接口，并提供了延迟重新入队列
 type delayingType struct {
-	Interface
+	Interface // 一个通用队列
 
-	// clock tracks time for delayed firing
+	// clock 用于跟踪延迟触发的时间
 	clock clock.Clock
 
-	// stopCh lets us signal a shutdown to the waiting loop
+	// stopCh 让我们停止关闭信号等待循环
 	stopCh chan struct{}
-	// stopOnce guarantees we only signal shutdown a single time
+	// stopOnce 保证我们只关闭一次信号
 	stopOnce sync.Once
 
-	// heartbeat ensures we wait no more than maxWait before firing
+	// heartbeat 确保在触发之前我们的等待时间不超过 maxWait
 	heartbeat clock.Ticker
 
-	// waitingForAddCh is a buffered channel that feeds waitingForAdd
+	// waitingForAddCh 是一个 buffered channel，提供了一个缓冲通道 延迟添加的元素封装成 waitFor 放到 channel 中
 	waitingForAddCh chan *waitFor
 
-	// metrics counts the number of retries
+	// metrics 记录重试次数
 	metrics retryMetrics
 }
 
-// waitFor holds the data to add and the time it should be added
+// waitFor 持有要添加的数据和应该添加的时间
 type waitFor struct {
-	data    t
-	readyAt time.Time
-	// index in the priority queue (heap)
-	index int
+	data    t // 添加的元素数据
+	readyAt time.Time // 在什么时间添加到队列中
+	index int // 优先级队列（heap）中的索引
 }
 
-// waitForPriorityQueue implements a priority queue for waitFor items.
-//
-// waitForPriorityQueue implements heap.Interface. The item occurring next in
-// time (i.e., the item with the smallest readyAt) is at the root (index 0).
-// Peek returns this minimum item at index 0. Pop returns the minimum item after
-// it has been removed from the queue and placed at index Len()-1 by
-// container/heap. Push adds an item at index Len(), and container/heap
-// percolates it into the correct location.
+// waitForPriorityQueue 为 waitFor 的元素集合实现了一个优先级队列
+// 把需要延迟的元素放到一个队列中，然后在队列中按照元素的延时添加时间（readyAt）从小到大排序
+// 其实这个优先级队列就是实现的 golang 中内置的 container/heap/heap.go 中的 Interface 接口
+// 最终实现的队列就是 waitForPriorityQueue 这个集合是有序的，按照时间从小到大进行排列
 type waitForPriorityQueue []*waitFor
 
 func (pq waitForPriorityQueue) Len() int {

@@ -1,19 +1,3 @@
-/*
-Copyright 2014 The Kubernetes Authors.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package cache
 
 import (
@@ -23,26 +7,21 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 )
 
-// Indexer extends Store with multiple indices and restricts each
-// accumulator to simply hold the current object (and be empty after
-// Delete).
+// Indexer 使用多个索引扩展了 Store，并限制了每个累加器只能容纳当前对象
 //
-// There are three kinds of strings here:
-// 1. a storage key, as defined in the Store interface,
-// 2. a name of an index, and
-// 3. an "indexed value", which is produced by an IndexFunc and
-//    can be a field value or any other string computed from the object.
+// 这里有3种字符串需要说明：
+// 1. 一个存储键，在 Store 接口中定义（其实就是对象键）
+// 2. 一个索引的名称（相当于索引分类名称）
+// 3. 索引键，由 IndexFunc 生成，可以是一个字段值或从对象中计算出来的任何字符串
 type Indexer interface {
-	Store
-	// Index returns the stored objects whose set of indexed values
-	// intersects the set of indexed values of the given object, for
-	// the named index
+	Store // 继承了 Store 存储接口，所以说 Indexer 也是存储
+	// indexName 是索引类名称，obj 是对象，计算 obj 在 indexName 索引类中的索引键，然后通过索引键把所有的对象取出来
+	// 获取 obj 对象在索引类中的索引键相匹配的对象
 	Index(indexName string, obj interface{}) ([]interface{}, error)
-	// IndexKeys returns the storage keys of the stored objects whose
-	// set of indexed values for the named index includes the given
-	// indexed value
+	// indexKey 是 indexName 索引分类中的一个索引键
+	// 函数返回 indexKey 指定的所有对象键 IndexKeys
 	IndexKeys(indexName, indexedValue string) ([]string, error)
-	// ListIndexFuncValues returns all the indexed values of the given index
+	// ListIndexFuncValues 返回所有的索引值给定的索引
 	ListIndexFuncValues(indexName string) []string
 	// ByIndex returns the stored objects whose set of indexed values
 	// for the named index includes the given indexed value
@@ -55,7 +34,7 @@ type Indexer interface {
 	AddIndexers(newIndexers Indexers) error
 }
 
-// IndexFunc knows how to compute the set of indexed values for an object.
+// IndexFunc 知道怎么计算一个对象的索引键集合
 type IndexFunc func(obj interface{}) ([]string, error)
 
 // IndexFuncToKeyFuncAdapter adapts an indexFunc to a keyFunc.  This is only useful if your index function returns
