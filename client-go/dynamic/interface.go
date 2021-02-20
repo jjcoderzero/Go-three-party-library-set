@@ -31,11 +31,11 @@ type NamespaceableResourceInterface interface {
 	ResourceInterface
 }
 
-// APIPathResolverFunc knows how to convert a groupVersion to its API path. The Kind field is optional.
+// APIPathResolverFunc知道如何将groupVersion转换为它的API路径。Kind字段是可选的。
 // TODO find a better place to move this for existing callers
 type APIPathResolverFunc func(kind schema.GroupVersionKind) string
 
-// LegacyAPIPathResolverFunc can resolve paths properly with the legacy API.
+// LegacyAPIPathResolverFunc可以使用遗留API正确地解析路径。
 // TODO find a better place to move this for existing callers
 func LegacyAPIPathResolverFunc(kind schema.GroupVersionKind) string {
 	if len(kind.Group) == 0 {

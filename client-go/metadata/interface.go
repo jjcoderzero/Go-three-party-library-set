@@ -1,19 +1,3 @@
-/*
-Copyright 2016 The Kubernetes Authors.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package metadata
 
 import (
@@ -25,14 +9,12 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 )
 
-// Interface allows a caller to get the metadata (in the form of PartialObjectMetadata objects)
-// from any Kubernetes compatible resource API.
+// Interface 允许调用者从任何Kubernetes兼容的资源API中获得元数据(以部分对象的形式)。
 type Interface interface {
 	Resource(resource schema.GroupVersionResource) Getter
 }
 
-// ResourceInterface contains the set of methods that may be invoked on objects by their metadata.
-// Update is not supported by the server, but Patch can be used for the actions Update would handle.
+// ResourceInterface包含一组可以通过对象的元数据在对象上调用的方法。服务器不支持更新，但是补丁可以用于更新将处理的动作。
 type ResourceInterface interface {
 	Delete(ctx context.Context, name string, options metav1.DeleteOptions, subresources ...string) error
 	DeleteCollection(ctx context.Context, options metav1.DeleteOptions, listOptions metav1.ListOptions) error
